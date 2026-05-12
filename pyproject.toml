@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "taiga-cli"
+version = "0.1.0"
+description = "Command-line interface for the Taiga project management API"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [
+    { name = "Dmitry K Valberg" },
+]
+keywords = ["taiga", "cli", "project-management", "api"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "python-taiga>=1.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "twine",
+]
+
+[project.scripts]
+taiga = "taiga_cli.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/gcardinal/taiga-cli"
+Repository = "https://github.com/gcardinal/taiga-cli"
+Issues = "https://github.com/gcardinal/taiga-cli/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
