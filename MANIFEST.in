@@ -1,7 +1,4 @@
-src/
-  taiga_cli/
-    __init__.py
-    cli.py
-pyproject.toml
-README.md
-LICENSE
+recursive-include src *.py
+include README.md
+include LICENSE
+include pyproject.toml
