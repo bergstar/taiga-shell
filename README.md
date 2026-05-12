@@ -1,11 +1,11 @@
-# taiga-cli
+# taiga-shell
 
 Command-line interface for the [Taiga](https://taiga.io) project management API.
 
 ## Installation
 
 ```bash
-pip install taiga-cli
+pip install taiga-shell
 ```
 
 ## Setup

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Taiga CLI — command-line interface for the Taiga project management API."""
+"""Taiga Shell — command-line interface for the Taiga project management API."""
 
 import argparse
 import json
@@ -190,7 +190,7 @@ def cmd_attach(api, args):
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="taiga",
-        description="Taiga CLI — interact with Taiga from the command line",
+        description="Taiga Shell — interact with Taiga from the command line",
     )
     parser.add_argument("--host", help="Taiga host URL (default: https://api.taiga.io)")
     parser.add_argument("--username", "-u", help="Username (overrides config)")
