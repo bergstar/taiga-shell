@@ -187,6 +187,46 @@ def cmd_attachments(api, args):
             print(f"  {a.description}")
 
 
+def _find_status(statuses, name):
+    for s in statuses:
+        if s.name.lower() == name.lower():
+            return s
+    for s in statuses:
+        if name.lower() in s.name.lower():
+            return s
+    return None
+
+
+@register("move")
+def cmd_move(api, args):
+    project = api.projects.get_by_slug(args.project)
+    if args.type == "task":
+        statuses = list(project.task_statuses)
+        item = project.get_task_by_ref(args.ref)
+    else:
+        statuses = project.list_user_story_statuses()
+        item = project.get_userstory_by_ref(args.ref)
+
+    if args.status == "?":
+        current = _resolve_status(item)
+        print(f"Current: {current}")
+        print("Available:")
+        for s in statuses:
+            closed = " (closed)" if s.is_closed else ""
+            print(f"  {s.name}{closed}")
+        return
+
+    target = _find_status(statuses, args.status)
+    if not target:
+        names = ", ".join(s.name for s in statuses)
+        print(f"Error: status '{args.status}' not found. Available: {names}", file=sys.stderr)
+        sys.exit(1)
+
+    item.update(status=target.id)
+    label = "Task" if args.type == "task" else "User Story"
+    print(f"{label} #{item.ref} moved to [{target.name}]: {item.subject}")
+
+
 @register("comment")
 def cmd_comment(api, args):
     project = api.projects.get_by_slug(args.project)
@@ -253,6 +293,12 @@ def build_parser():
     p = sub.add_parser("attachments", help="List attachments on a user story")
     p.add_argument("project", help="Project slug")
     p.add_argument("ref", type=int, help="User story ref")
+
+    p = sub.add_parser("move", help="Update status of a task or user story")
+    p.add_argument("project", help="Project slug")
+    p.add_argument("ref", type=int, help="Task or user story ref")
+    p.add_argument("status", help="Target status name (use '?' to list available statuses)")
+    p.add_argument("--type", "-t", choices=["task", "story"], default="story", help="Item type (default: story)")
 
     return parser
 
