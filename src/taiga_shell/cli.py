@@ -164,6 +164,29 @@ def cmd_task(api, args):
     print(f"  Blocked:    {task.is_blocked}")
 
 
+def _format_size(size):
+    if size < 1024:
+        return f"{size}B"
+    if size < 1024 * 1024:
+        return f"{size / 1024:.1f}KB"
+    return f"{size / (1024 * 1024):.1f}MB"
+
+
+@register("attachments")
+def cmd_attachments(api, args):
+    project = api.projects.get_by_slug(args.project)
+    us = project.get_userstory_by_ref(args.ref)
+    attachments = us.list_attachments()
+    if not attachments:
+        print("No attachments.")
+        return
+    for a in attachments:
+        size = _format_size(a.size) if a.size else "?"
+        print(f"{a.name}\t{size}\t{a.url}")
+        if a.description:
+            print(f"  {a.description}")
+
+
 @register("comment")
 def cmd_comment(api, args):
     project = api.projects.get_by_slug(args.project)
@@ -226,6 +249,10 @@ def build_parser():
     p.add_argument("ref", type=int, help="User story ref")
     p.add_argument("file", help="Path to file to attach")
     p.add_argument("--description", "-d", default="", help="Attachment description")
+
+    p = sub.add_parser("attachments", help="List attachments on a user story")
+    p.add_argument("project", help="Project slug")
+    p.add_argument("ref", type=int, help="User story ref")
 
     return parser
 
