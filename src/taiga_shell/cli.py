@@ -117,6 +117,50 @@ def cmd_stories(api, args):
     print(f"\nTotal user stories: {total}")
 
 
+def _format_size(size):
+    if size < 1024:
+        return f"{size}B"
+    if size < 1024 * 1024:
+        return f"{size / 1024:.1f}KB"
+    return f"{size / (1024 * 1024):.1f}MB"
+
+
+def _print_comments(api, history_endpoint, item_id):
+    try:
+        history = history_endpoint.get(item_id)
+    except Exception:
+        return
+    comments = [h for h in history if h.get("comment", "").strip()]
+    comments.reverse()
+    if not comments:
+        return
+    print(f"\n  Comments ({len(comments)}):")
+    for c in comments:
+        user = c.get("user", {}).get("name", "?")
+        created = c.get("created_at", "")
+        text = c["comment"].strip()
+        print(f"    [{user} @ {created}]")
+        for line in text.splitlines():
+            print(f"      {line}")
+        print()
+
+
+def _print_attachments(item):
+    try:
+        attachments = item.list_attachments()
+    except Exception:
+        return
+    if not attachments:
+        return
+    print(f"\n  Attachments ({len(attachments)}):")
+    for a in attachments:
+        size = _format_size(a.size) if a.size else "?"
+        print(f"    {a.name} ({size})")
+        if a.description:
+            print(f"      {a.description}")
+        print(f"      {a.url}")
+
+
 @register("story")
 def cmd_story(api, args):
     project = api.projects.get_by_slug(args.project)
@@ -129,8 +173,8 @@ def cmd_story(api, args):
     print(f"  Modified:   {us.modified_date}")
     print(f"  Finish:     {getattr(us, 'finish_date', None) or '-'}")
     print(f"  Tags:       {us.tags}")
-    print(f"  Comments:   {us.total_comments}")
-    print(f"  Attachments:{us.total_attachments}")
+    _print_comments(api, api.history.user_story, us.id)
+    _print_attachments(us)
 
 
 @register("tasks")
@@ -162,14 +206,8 @@ def cmd_task(api, args):
     print(f"  Due Date:   {task.due_date or '-'}")
     print(f"  Tags:       {task.tags}")
     print(f"  Blocked:    {task.is_blocked}")
-
-
-def _format_size(size):
-    if size < 1024:
-        return f"{size}B"
-    if size < 1024 * 1024:
-        return f"{size / 1024:.1f}KB"
-    return f"{size / (1024 * 1024):.1f}MB"
+    _print_comments(api, api.history.task, task.id)
+    _print_attachments(task)
 
 
 @register("attachments")
